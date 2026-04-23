@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantTracker.Api.Data;
 using RestaurantTracker.Api.Endpoints;
 using RestaurantTracker.Api.Entities;
+using RestaurantTracker.Api.Middleware;
 using RestaurantTracker.Api.Services;
 using System.Text;
 using Microsoft.AspNetCore.HttpLogging;
@@ -12,6 +13,9 @@ using Microsoft.AspNetCore.HttpLogging;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -74,6 +78,8 @@ builder.Services.AddHttpClient<IGooglePlacesService, GooglePlacesService>(client
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
