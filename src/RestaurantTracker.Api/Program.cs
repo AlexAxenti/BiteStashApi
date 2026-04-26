@@ -101,6 +101,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 HealthEndpoint.Map(app);
-SearchEndpoint.Map(app);
 
 app.Run();
