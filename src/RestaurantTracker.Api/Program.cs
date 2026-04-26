@@ -102,4 +102,10 @@ app.MapControllers();
 
 HealthEndpoint.Map(app);
 
+using (var scope = app.Services.CreateScope())
+{
+    var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+    await authService.DeleteOldRefreshTokensAsync();
+}
+
 app.Run();

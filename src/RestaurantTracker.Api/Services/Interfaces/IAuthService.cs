@@ -12,4 +12,5 @@ public interface IAuthService
     (string AccessToken, DateTime ExpiresAtUtc) GenerateAccessToken(ApplicationUser user);
     Task<string> CreateRefreshTokenAsync(ApplicationUser user);
     Task<RefreshResult> RefreshTokenAsync(string refreshToken);
+    Task DeleteOldRefreshTokensAsync();
 }

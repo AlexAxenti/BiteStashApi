@@ -152,6 +152,18 @@ public class AuthService : IAuthService
         return new RefreshResult(true, accessToken, refreshTokenValue, expiresAtUtc, null);
     }
 
+    public async Task DeleteOldRefreshTokensAsync()
+    {
+        var now = DateTime.UtcNow;
+        var revokedCutoff = now.AddDays(-7);
+
+        await _dbContext.RefreshTokens
+            .Where(t =>
+                t.ExpiresAtUtc < now ||
+                (t.RevokedAtUtc != null && t.RevokedAtUtc < revokedCutoff))
+            .ExecuteDeleteAsync();
+    }
+
     private (RefreshToken RefreshToken, string RefreshTokenValue) BuildRefreshToken(ApplicationUser user)
     {
         var refreshTokenDays = int.Parse(_configuration["Jwt:RefreshTokenDays"] ?? "30");
