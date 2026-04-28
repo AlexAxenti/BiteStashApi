@@ -9,10 +9,12 @@ namespace RestaurantTracker.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IRefreshTokenCleanupService _cleanupService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IRefreshTokenCleanupService cleanupService)
     {
         _authService = authService;
+        _cleanupService = cleanupService;
     }
 
     [HttpPost("register")]
@@ -31,6 +33,8 @@ public class AuthController : ControllerBase
         var (accessToken, expiresAtUtc) = _authService.GenerateAccessToken(result.User!);
         var refreshToken = await _authService.CreateRefreshTokenAsync(result.User!);
 
+        await _cleanupService.RunIfDueAsync();
+
         return Ok(new AuthResponse(accessToken, refreshToken, expiresAtUtc));
     }
 
@@ -47,6 +51,8 @@ public class AuthController : ControllerBase
         var (accessToken, expiresAtUtc) = _authService.GenerateAccessToken(user);
         var refreshToken = await _authService.CreateRefreshTokenAsync(user);
 
+        await _cleanupService.RunIfDueAsync();
+
         return Ok(new AuthResponse(accessToken, refreshToken, expiresAtUtc));
     }
 
@@ -59,6 +65,8 @@ public class AuthController : ControllerBase
         {
             return Unauthorized(new { message = result.ErrorMessage });
         }
+
+        await _cleanupService.RunIfDueAsync();
 
         return Ok(new AuthResponse(result.AccessToken!, result.RefreshToken!, result.ExpiresAtUtc!.Value));
     }

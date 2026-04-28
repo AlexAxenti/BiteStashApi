@@ -69,6 +69,7 @@ builder.Services.AddHttpLogging(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<IRefreshTokenCleanupService, RefreshTokenCleanupService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -101,11 +102,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 HealthEndpoint.Map(app);
-
-using (var scope = app.Services.CreateScope())
-{
-    var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
-    await authService.DeleteOldRefreshTokensAsync();
-}
 
 app.Run();
