@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace RestaurantTracker.Api.Entities;
 
 public class RefreshToken
@@ -20,8 +18,7 @@ public class RefreshToken
     public string UserId { get; set; } = null!;
     public ApplicationUser User { get; set; } = null!;
 
-    [Timestamp]
-    public byte[] RowVersion { get; set; } = null!;
+    public uint RowVersion { get; set; }
 
     public bool IsExpired => DateTime.UtcNow >= ExpiresAtUtc;
     public bool IsRevoked => RevokedAtUtc.HasValue;
