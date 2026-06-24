@@ -69,6 +69,7 @@ builder.Services.AddHttpLogging(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<IRefreshTokenCleanupService, RefreshTokenCleanupService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRestaurantEntryService, RestaurantEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();

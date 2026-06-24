@@ -136,8 +136,6 @@ public class AuthService : IAuthService
         existingRefreshToken.ReplacedByTokenHash = newRefreshToken.TokenHash;
         _dbContext.RefreshTokens.Add(newRefreshToken);
 
-        var (accessToken, expiresAtUtc) = GenerateAccessToken(existingRefreshToken.User);
-
         try
         {
             await _dbContext.SaveChangesAsync();
@@ -149,7 +147,21 @@ public class AuthService : IAuthService
             return new RefreshResult(false, null, null, null, "Refresh token has already been used.");
         }
 
+        var (accessToken, expiresAtUtc) = GenerateAccessToken(existingRefreshToken.User);
+
         return new RefreshResult(true, accessToken, refreshTokenValue, expiresAtUtc, null);
+    }
+
+    public async Task DeleteOldRefreshTokensAsync()
+    {
+        var now = DateTime.UtcNow;
+        var revokedCutoff = now.AddDays(-7);
+
+        await _dbContext.RefreshTokens
+            .Where(t =>
+                t.ExpiresAtUtc < now ||
+                (t.RevokedAtUtc != null && t.RevokedAtUtc < revokedCutoff))
+            .ExecuteDeleteAsync();
     }
 
     private (RefreshToken RefreshToken, string RefreshTokenValue) BuildRefreshToken(ApplicationUser user)
